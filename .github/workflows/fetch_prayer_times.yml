@@ -1,0 +1,119 @@
+name: Fetch JAKIM Prayer Times (Monthly, MYT)
+
+on:
+  # 16:00 UTC daily === 00:00 MYT next day
+  schedule:
+    - cron: "0 16 * * *"
+  workflow_dispatch:
+    inputs:
+      zone:
+        description: "JAKIM zone (e.g., SGR01)"
+        required: false
+        default: "SGR01"
+      period:
+        description: "week | month | year | duration"
+        required: false
+        default: "month"
+      start:
+        description: "Start date YYYY-MM-DD (for period=duration)"
+        required: false
+      end:
+        description: "End date YYYY-MM-DD (for period=duration)"
+        required: false
+
+permissions:
+  contents: write
+
+env:
+  ZONE: SGR01
+  PERIOD: month
+  OUTDIR: data
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  fetch-and-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # Guard: only proceed if it's the 1st in Asia/Kuala_Lumpur
+      - name: Check MYT date is 1st
+        id: mytcheck
+        run: |
+          MYT_DAY=$(TZ=Asia/Kuala_Lumpur date +%d)
+          echo "MYT day-of-month: $MYT_DAY"
+          if [ "$MYT_DAY" != "01" ] && [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "Not the 1st in MYT; skipping."
+            echo "run_job=false" >> $GITHUB_OUTPUT
+          else
+            echo "It is the 1st in MYT (or manual run); proceeding."
+            echo "run_job=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Stop if not MYT 1st
+        if: steps.mytcheck.outputs.run_job != 'true'
+        run: echo "Job skipped."
+
+      - name: Set up Python
+        if: steps.mytcheck.outputs.run_job == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        if: steps.mytcheck.outputs.run_job == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Resolve inputs (manual run overrides)
+        if: steps.mytcheck.outputs.run_job == 'true'
+        id: vars
+        run: |
+          ZONE_IN="${{ github.event.inputs.zone }}"
+          PERIOD_IN="${{ github.event.inputs.period }}"
+          START_IN="${{ github.event.inputs.start }}"
+          END_IN="${{ github.event.inputs.end }}"
+          echo "zone=${ZONE_IN:-${ZONE}}" >> $GITHUB_OUTPUT
+          echo "period=${PERIOD_IN:-${PERIOD}}" >> $GITHUB_OUTPUT
+          echo "start=${START_IN}" >> $GITHUB_OUTPUT
+          echo "end=${END_IN}" >> $GITHUB_OUTPUT
+          echo "outdir=${OUTDIR}" >> $GITHUB_OUTPUT
+
+      - name: Ensure output directory exists
+        if: steps.mytcheck.outputs.run_job == 'true'
+        run: |
+          mkdir -p "${{ steps.vars.outputs.outdir }}"
+          [ -f "${{ steps.vars.outputs.outdir }}/.gitkeep" ] || touch "${{ steps.vars.outputs.outdir }}/.gitkeep"
+
+      - name: Run fetch_prayer_times.py
+        if: steps.mytcheck.outputs.run_job == 'true'
+        run: |
+          set -euo pipefail
+          Z="${{ steps.vars.outputs.zone }}"
+          P="${{ steps.vars.outputs.period }}"
+          S="${{ steps.vars.outputs.start }}"
+          E="${{ steps.vars.outputs.end }}"
+          O="${{ steps.vars.outputs.outdir }}"
+          echo "Running fetch with zone=$Z period=$P start=$S end=$E outdir=$O"
+          if [ "$P" = "duration" ]; then
+            if [ -z "$S" ] || [ -z "$E" ]; then
+              echo "period=duration requires start and end inputs." >&2
+              exit 2
+            fi
+            python fetch_prayer_times.py --zone "$Z" --period "$P" --start "$S" --end "$E" --outdir "$O"
+          else
+            python fetch_prayer_times.py --zone "$Z" --period "$P" --outdir "$O"
+          fi
+
+      - name: Commit CSV (if changed)
+        if: steps.mytcheck.outputs.run_job == 'true'
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet -- "${{ steps.vars.outputs.outdir }}/"; then
+            git add "${{ steps.vars.outputs.outdir }}/"
+            git commit -m "chore: add/update prayer times CSV (MYT run $(TZ=Asia/K

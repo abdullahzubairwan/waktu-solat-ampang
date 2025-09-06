@@ -1,0 +1,158 @@
+/* Base */
+:root{
+  --bg: #0b1114;
+  --bg2: #0e171b;
+  --card: rgba(255,255,255,0.06);
+  --stroke: rgba(255,255,255,0.12);
+  --text: #e8f1f2;
+  --muted: #a8bdc2;
+  --accent: #22d0a3;      /* teal */
+  --accent-dim: #1ba183;
+  --glow: 0 0 30px rgba(34,208,163,0.35);
+}
+
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(34,208,163,0.15), transparent 60%),
+    radial-gradient(800px 400px at 110% 10%, rgba(34,208,163,0.08), transparent 60%),
+    linear-gradient(180deg, var(--bg), var(--bg2));
+}
+
+/* Layout */
+.wrap{
+  max-width: 840px;
+  margin: 4rem auto;
+  padding: 1.25rem;
+}
+
+.top{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  margin-bottom: 1rem;
+}
+.brand{
+  display:flex; align-items:center; gap:.6rem;
+}
+.brand .dot{
+  width:14px;height:14px;border-radius:50%;
+  background: var(--accent);
+  box-shadow: var(--glow);
+}
+h1{
+  margin:0;
+  font-weight:800;
+  letter-spacing:.4px;
+}
+
+.status{
+  margin:0;
+  color: var(--muted);
+  font-size:.95rem;
+}
+
+/* Date box */
+.dates{
+  margin-top:.25rem;
+  margin-bottom: 1.25rem;
+}
+.date-box{
+  border:1px solid var(--stroke);
+  border-radius: 16px;
+  padding: 16px 18px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  backdrop-filter: blur(6px);
+}
+.day{
+  font-size:1.15rem;
+  font-weight:700;
+}
+.greg{
+  font-size:1.05rem;
+  color: var(--text);
+  opacity:.95;
+}
+.hijri{
+  margin-top:4px;
+  color: var(--muted);
+}
+
+/* Grid of times */
+.grid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+@media (max-width:720px){
+  .grid{ grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width:460px){
+  .grid{ grid-template-columns: 1fr; }
+}
+
+.cell{
+  border:1px solid var(--stroke);
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: var(--card);
+  backdrop-filter: blur(4px);
+  transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+.cell:hover{
+  transform: translateY(-2px);
+  border-color: rgba(34,208,163,0.35);
+  box-shadow: var(--glow);
+}
+.label{
+  font-size:.95rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.time{
+  font-size:1.75rem;
+  font-weight:800;
+  letter-spacing:.5px;
+  line-height: 1.1;
+}
+
+/* Footer */
+.foot{
+  text-align:center;
+  margin-top: 1.25rem;
+  color: var(--muted);
+}
+
+/* Nice focus styles for a11y if you add buttons/links later */
+:focus-visible{
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* --- Title: make it big & full-width --- */
+.top{
+  justify-content: center;           /* center the whole header row */
+}
+
+.brand{
+  width: 100%;                       /* let the brand block take the full row */
+  justify-content: center;           /* center dot + title inside */
+  gap: 0.8rem;                       /* a bit more space between dot and title */
+}
+
+.brand .dot{
+  width: 18px;
+  height: 18px;                      /* slightly bigger accent dot */
+}
+
+h1{
+  font-size: clamp(2.4rem, 8vw, 4.2rem);  /* responsive, nice and big */
+  line-height: 1.05;
+  letter-spacing: .6px;
+  margin: 0;
+}

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Waktu Solat Ampang</title>
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="wrap">
+    <!-- Header / Title -->
+    <header class="top">
+      <div class="brand">
+        <div class="dot"></div>
+        <h1>Waktu Solat Ampang</h1>
+        <div class="dot"></div>
+      </div>
+      <!-- removed the status line -->
+      <!-- <p id="status" class="status">Memuat data…</p> -->
+    </header>
+
+    <!-- Date row -->
+    <section class="dates">
+      <div class="date-box">
+        <div class="day" id="day-name">—</div>
+        <div class="greg" id="date-greg">—</div>
+        <div class="hijri" id="date-hijri"></div>
+      </div>
+    </section>
+
+    <!-- Times grid -->
+    <section class="grid">
+      <!-- Imsak block removed -->
+
+      <div class="cell">
+        <div class="label">Subuh</div>
+        <div class="time" id="fajr">--:--</div>
+      </div>
+      <div class="cell">
+        <div class="label">Syuruk</div>
+        <div class="time" id="syuruk">--:--</div>
+      </div>
+      <div class="cell">
+        <div class="label">Zuhur</div>
+        <div class="time" id="dhuhr">--:--</div>
+      </div>
+      <div class="cell">
+        <div class="label">Asar</div>
+        <div class="time" id="asr">--:--</div>
+      </div>
+      <div class="cell">
+        <div class="label">Maghrib</div>
+        <div class="time" id="maghrib">--:--</div>
+      </div>
+      <div class="cell">
+        <div class="label">Isya'</div>
+        <div class="time" id="isha">--:--</div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="foot">
+      <small>Data: JAKIM (e-Solat) • Zon: SGR01 • By: Zubair</small>
+    </footer>
+  </main>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
